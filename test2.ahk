@@ -1,141 +1,79 @@
-dict := {}
-dict["Afrikaans"] := "af"
-MsgBox % dict
+;activex gui - test  joedf - 2014/07/04
+#SingleInstance, off
+OnExit, OnExit
 
+MYAPP_PROTOCOL := "myapp"
 
-
-"Afrikaans","af",
-"Albanian","sq",
-"Amharic","am",
-"Arabic","ar",
-"Armenian","hy",
-"Assamese","as",
-"Aymara","ay",
-"Azerbaijani","az",
-"Bambara","bm",
-"Basque","eu",
-"Belarusian","be",
-"Bengali","bn",
-"Bhojpuri","bho",
-"Bosnian","bs",
-"Bulgarian","bg",
-"Catalan","ca",
-"Cebuano","ceb",
-"Chinese (Simplified)","zh-CN",
-"Chinese (Traditional)","zh-TW",
-"Corsican","co",
-"Croatian","hr",
-"Czech","cs",
-"Danish","da",
-"Dhivehi","dv",
-"Dogri","doi",
-"Dutch","nl",
-"English","en",
-"Esperanto","eo",
-"Estonian","et",
-"Ewe","ee",
-"Filipino (Tagalog)","fil",
-"Finnish","fi",
-"French","fr",
-"Frisian","fy",
-"Galician","gl",
-"Georgian","ka",
-"German","de",
-"Greek","el",
-"Guarani","gn",
-"Gujarati","gu",
-"Haitian Creole","ht",
-"Hausa","ha",
-"Hawaiian","haw",
-"Hebrew","he",
-"Hindi","hi",
-"Hmong","hmn",
-"Hungarian","hu",
-"Icelandic","is",
-"Igbo","ig",
-"Ilocano","ilo",
-"Indonesian","id",
-"Irish","ga",
-"Italian","it",
-"Japanese","ja",
-"Javanese","jv",
-"Kannada","kn",
-"Kazakh","kk",
-"Khmer","km",
-"Kinyarwanda","rw",
-"Konkani","gom",
-"Korean","ko",
-"Krio","kri",
-"Kurdish","ku",
-"Kurdish (Sorani)","ckb",
-"Kyrgyz","ky",
-"Lao","lo",
-"Latin","la",
-"Latvian","lv",
-"Lingala","ln",
-"Lithuanian","lt",
-"Luganda","lg",
-"Luxembourgish","lb",
-"Macedonian","mk",
-"Maithili","mai",
-"Malagasy","mg",
-"Malay","ms",
-"Malayalam","ml",
-"Maltese","mt",
-"Maori","mi",
-"Marathi","mr",
-"Meiteilon (Manipuri)","mni-Mtei",
-"Mizo","lus",
-"Mongolian","mn",
-"Myanmar (Burmese)","my",
-"Nepali","ne",
-"Norwegian","no",
-"Nyanja (Chichewa)","ny",
-"Odia (Oriya)","or",
-"Oromo","om",
-"Pashto","ps",
-"Persian","fa",
-"Polish","pl",
-"Portuguese (Portugal, Brazil)","pt",
-"Punjabi","pa",
-"Quechua","qu",
-"Romanian","ro",
-"Russian","ru",
-"Samoan","sm",
-"Sanskrit","sa",
-"Scots Gaelic","gd",
-"Sepedi","nso",
-"Serbian","sr",
-"Sesotho","st",
-"Shona","sn",
-"Sindhi","sd",
-"Sinhala (Sinhalese)","si",
-"Slovak","sk",
-"Slovenian","sl",
-"Somali","so",
-"Spanish","es",
-"Sundanese","su",
-"Swahili","sw",
-"Swedish","sv",
-"Tagalog (Filipino)","tl",
-"Tajik","tg",
-"Tamil","ta",
-"Tatar","tt",
-"Telugu","te",
-"Thai","th",
-"Tigrinya","ti",
-"Tsonga","ts",
-"Turkish","tr",
-"Turkmen","tk",
-"Twi (Akan)","ak",
-"Ukrainian","uk",
-"Urdu","ur",
-"Uyghur","ug",
-"Uzbek","uz",
-"Vietnamese","vi",
-"Welsh","cy",
-"Xhosa","xh",
-"Yiddish","yi",
-"Yoruba","yo",
-"Zulu","zu"
+HTML_page =
+( Ltrim Join
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			body{font-family:sans-serif;background-color:#dde4ec;}
+			#title{font-size:36px;}
+			#corner{font-size:10px;position:absolute;top:8px;right:8px;}
+			p{font-size:16px;background-color:#efefef;border:solid 1px #666;padding:4px;}
+			#footer{text-align:center;}
+		</style>
+	</head>
+	<body>
+		<div id="title">Lorem Ipsum</div>
+		<div id="corner">Welcome!</div>
+		<p>The standard Lorem Ipsum passage, used since the 1500s</p>
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+		<p>
+			<input type="text" id="inputText" placeholder="Enter text here" />
+			<button onclick="executeAHKFunction()">Show MsgBox</button> <!-- Added onclick event -->
+		</p>
+		<p id="footer">
+			<a href="%MYAPP_PROTOCOL%://msgbox/hello">Click me for a MsgBox</a>&nbsp;-&nbsp;
+			<a href="NOPE://msgbox/hello">Click me for nothing</a>&nbsp;-&nbsp;
+			<a href="%MYAPP_PROTOCOL%://soundplay/ding">Click me for a ding sound!</a>
+		</p>
+		<script>
+			function executeAHKFunction() {  // Added JavaScript function
+				var inputText = document.getElementById("inputText").value;
+				window.external.ExecuteAHKFunction(inputText);  // Call AHK function
+			}
+		</script>
+	</body>
+</html>
 )
+
+Gui Add, ActiveX, x0 y0 w640 h480 vWB, Shell.Explorer  ; The final parameter is the name of the ActiveX component.
+WB.silent := true ;Suppress JS Error boxes
+Display(WB, HTML_page)
+ComObjConnect(WB, WB_events)  ; Connect WB's events to the WB_events class object.
+Gui Show, w640 h480
+return
+
+GuiClose:
+	msgbox % WB.document.getElementById("inputText").value
+ExitApp
+
+OnExit:
+	FileDelete, %A_Temp%\*.DELETEME.html ; Clean tmp file
+ExitApp
+
+class WB_events
+{
+	; for more events and others, see http://msdn.microsoft.com/en-us/library/aa752085
+	
+	NavigateComplete2(wb) {
+		wb.Stop() ; Block all navigation, we want our own stuff happening
+	}
+	DownloadComplete(wb, NewURL) {
+		wb.Stop() ; Block all navigation, we want our own stuff happening
+	}
+	DocumentComplete(wb, NewURL) {
+		wb.Stop() ; Block all navigation, we want our own stuff happening
+	}
+	
+	BeforeNavigate2(wb, NewURL)
+	{
+		wb.Stop() ; Block all navigation, we want our own stuff happening
+		; parse the URL
+		global MYAPP_PROTOCOL
+		if (InStr(NewURL, MYAPP_PROTOCOL "://") == 1) { ; if the URL starts with "myapp://"
+			what := SubStr(NewURL, Strlen(MYAPP_PROTOCOL) + 4) ; get stuff after "myapp://"

@@ -14,3 +14,5 @@ formatted_text = '. "' + '"\n. "'.join(chunks) + '"'
 pyperclip.copy(formatted_text)
 
 print("Formatted text copied to clipboard.")
+
+

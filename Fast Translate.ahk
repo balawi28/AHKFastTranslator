@@ -20,11 +20,11 @@ targetIndex := FindLanguageIndex(dict, defaultTargetLanguage)
 
 ; Tray menu
 Menu, Tray, NoStandard ; Remove all standard tray menu options
-Menu, Tray, Add, Open UI, HotkeyPressed
+Menu, Tray, Add, GUI, HotkeyPressed
 Menu, Tray, Add, Run at Startup, StartupToggle
 Menu, Tray, Add, Exit, ExitApplication
 Menu, Tray, Icon, Exit, Shell32.dll, 132
-
+Menu, Tray, Default, GUI
 Gui, +AlwaysOnTop +ToolWindow +LastFound -Caption +Border +MinSize
 Gui, Color, White
 Gui, Font, s11
@@ -36,7 +36,7 @@ Gui, Add, DropDownList, x10 y50 w150 choose%sourceIndex% vSourceLang gOnSourceLa
 Gui, Add, Picture, x173 y54 w23 h16 gSwapLanguages, % "HICON:" . Base64PNG_to_HICON(SwapIcon())
 Gui, Add, DropDownList, x210 y50 w150 choose%targetIndex% vTargetLang gOnTargetLangChange, %menuOptions%
 
-Gui, Add, Text,x20 y90 w170,Open/Close window hotkey:
+Gui, Add, Text,xm y90 w170,Open/Close window hotkey:
 Gui, Add, Hotkey, x210 y90 w150 vhotKeyCurrent
 GuiControl,, hotKeyCurrent, %hotKeyPrevious%
 Gui Add, Button, x370 y90, Save
@@ -49,7 +49,6 @@ return
 
 ButtonSave:
     Gui, Submit, NoHide
-    msgbox Hotkey Saved Successfully
     if (StrLen(hotKeyPrevious) != 0)
         Hotkey, %hotKeyPrevious%, Off
 
