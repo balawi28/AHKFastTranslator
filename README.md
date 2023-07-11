@@ -40,8 +40,6 @@ If you encounter any issues or have any suggestions, please visit the GitHub rep
 ## License
 This project is licensed under the MIT License. See the LICENSE file for more information.
 
-![image](https://user-images.githubusercontent.com/41299807/179814079-ca57247a-5509-4bb5-9af5-5ffeaff920cb.png)
-
 ## Notes
 - For suggestions and bug reporting, please refer to the issues section of this page.
 - This is not a spectrum analyzer, the bars represent the Current_Audio_Level $\pm$ random noise.
