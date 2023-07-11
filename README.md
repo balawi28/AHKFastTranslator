@@ -1,6 +1,7 @@
 
-# ![Sprite-0003](https://user-images.githubusercontent.com/41299807/179816059-ee64df15-9f64-4798-b268-62bbf79e1376.png) TrayAudioVisualizer
+# ![Google Translate Logo](https://github.com/balawi28/AHKFastTranslator/assets/41299807/64ce6ad9-e45b-4d80-bdfa-9032f10d2a6f) AHKFastTranslator
 AutoHotKey (AHK) script to visualize current audio levels through dynamic vertical bars in the tray icon.
+
 
 ![Animation](https://user-images.githubusercontent.com/41299807/179812864-d4cb2667-3def-4435-8302-82d6bafc95b8.gif)
 
