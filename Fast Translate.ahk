@@ -10,11 +10,13 @@ IniRead, defaultSourceLanguage, %A_ScriptFullPath%:Stream:$DATA, Settings, defau
 IniRead, defaultTargetLanguage, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultTargetLanguage,Arabic
 IniRead, hotKeyPrevious, %A_ScriptFullPath%:Stream:$DATA, Settings, hotKeyPrevious, ^+t
 IniRead, isRanAtStartup, %A_ScriptFullPath%:Stream:$DATA, Settings, Startup, error
+IniRead, outputMethod, %A_ScriptFullPath%:Stream:$DATA, Settings, outputMethod, tooltip
 
 ; Initalize hotkey
 if (StrLen(hotKeyPrevious) != 0)
     Hotkey, %hotKeyPrevious%, HotkeyPressed
 
+; Initalize source and target languages
 sourceIndex := FindLanguageIndex(dict, defaultSourceLanguage)
 targetIndex := FindLanguageIndex(dict, defaultTargetLanguage)
 
@@ -25,38 +27,65 @@ Menu, Tray, Add, Run at Startup, StartupToggle
 Menu, Tray, Add, Exit, ExitApplication
 Menu, Tray, Icon, Exit, Shell32.dll, 132
 Menu, Tray, Default, GUI
-Gui, +AlwaysOnTop +ToolWindow +LastFound -Caption +Border +MinSize
+Gui, +AlwaysOnTop +ToolWindow +LastFound +Border -Caption +OwnDialogs
 Gui, Color, White
 Gui, Font, s11
 
-Gui, Add, Picture, x10 y10 w32 h32, % "HICON:" . Base64PNG_to_HICON(GoogleTranslateLogoPNG64())
-Gui, Add, Edit, xm+52 ym+8 w270 vEditField
+; GUI configuration
+Gui, Add, DropDownList, x10 y10 w150 choose%sourceIndex% vSourceLang gOnSourceLangChange, %menuOptions%
+Gui, Add, Picture, x170 y14 w23 h16 gSwapLanguages, % "HICON:" . Base64PNG_to_HICON(SwapIcon())
+Gui, Add, DropDownList, x200 y10 w150 choose%targetInde`x% vTargetLang gOnTargetLangChange, %menuOptions%
 
-Gui, Add, DropDownList, x10 y50 w150 choose%sourceIndex% vSourceLang gOnSourceLangChange, %menuOptions%
-Gui, Add, Picture, x173 y54 w23 h16 gSwapLanguages, % "HICON:" . Base64PNG_to_HICON(SwapIcon())
-Gui, Add, DropDownList, x210 y50 w150 choose%targetIndex% vTargetLang gOnTargetLangChange, %menuOptions%
+Gui, Add, Picture, x10 y50 w32 h32, % "HICON:" . Base64PNG_to_HICON(GoogleTranslateLogoPNG64())
+Gui, Add, Edit, x55 y55 w295 vEditField
 
-Gui, Add, Text,xm y90 w170,Open/Close window hotkey:
-Gui, Add, Hotkey, x210 y90 w150 vhotKeyCurrent
+Gui, Add, Text, x10 y100 w200,GUI Popup Hotkey:
+Gui, Add, Hotkey, x130 y97 w150 h25 vhotKeyCurrent
 GuiControl,, hotKeyCurrent, %hotKeyPrevious%
-Gui Add, Button, x370 y90, Save
+Gui Add, Button, x290 y96 w60` h27, Save
+
+Gui, Add, Text, x10 y130 w200,Prefered Output:
+Gui, Add, Radio, x130 y130 vChoiceToolTip gRadioChoice, Tooltip
+Gui, Add, Radio, x200 y130 vChoiceMsgBox gRadioChoice, Message Box
+GuiControl,, % outputMethod = "tooltip" ? "ChoiceToolTip" : "ChoiceMsgBox", 1
+
+Gui, Add, Text, x275 y160, [draggable]
+Gui, Font, Underline cBlue
+Gui, Add, Text, x10 y160 gAbout, About
+Gui, Add, Text, x72 y160 gBugReport, Bug Report
+Gui, Add, Text, x167 y160 gHowToUse, How to Use?
 
 ; Define the callback function to handle the WM_MOVE message
 OnMessage(0x0232, "OnDragRelease")
 
+; To enable drag on the main window
 enableGuiDrag()
 return
 
+; Save hotkey routine
 ButtonSave:
     Gui, Submit, NoHide
-    if (StrLen(hotKeyPrevious) != 0)
+    if (StrLen(hotKeyPrevious) != 0 and hotKeyPrevious != hotKeyCurrent)
         Hotkey, %hotKeyPrevious%, Off
 
     if (StrLen(hotKeyCurrent) != 0)
         Hotkey, %hotKeyCurrent%, HotkeyPressed
 
+    IniWrite, %hotKeyCurrent%, %A_ScriptFullPath%:Stream:$DATA, Settings, hotKeyCurrent
     hotKeyPrevious := hotKeyCurrent
-    IniWrite, %hotKeyPrevious%, %A_ScriptFullPath%:Stream:$DATA, Settings, hotKeyPrevious
+
+return
+
+About:
+MsgBox, 0x40000, , By: balawi28`n`nhttps://github.com/balawi28/AHKFastTranslator
+return
+
+BugReport:
+    Msgbox https://github.com/balawi28/AHKFastTranslator/issues
+return
+
+HowToUse:
+    Msgbox 1- Assign a hotkey then click "save" button.`n2- Whenever you need to translate something use that hotkey.`n3- Press Enter to receive the translation.
 return
 
 #IfWinActive, TranslationGUI ahk_class AutoHotkeyGUI
@@ -71,22 +100,37 @@ return
         url := TranslateURL(dict[SourceLang], dict[TargetLang], EditField)
         response := PostRequest(url)
         cleanResponse := SubStr(response, 3, StrLen(response) - 4)
-        ToolTip % cleanResponse
-        Sleep, 2000 ; Display the tooltip for 2 seconds
-        ToolTip ; Remove the tooltip
-    return
+        if (outputMethod = "tooltip"){
+            ToolTip % cleanResponse
+            Sleep, 2000 ; Display the tooltip for 2 seconds
+            ToolTip ; Remove the tooltip
+        } else{
+            MsgBox % cleanResponse
+        }
+return
 #IfWinActive
+
+GuiClose:
+    Minimized := True
+    Gui, Cancel
+return
 
 ExitApplication(){
     ExitApp
     Exit
 }
 
+RadioChoice:
+    gui, submit, nohide
+    outputMethod := ChoiceToolTip ? "tooltip" : "msgbox"
+    IniWrite, %outputMethod%, %A_ScriptFullPath%:Stream:$DATA, Settings,outputMethod
+Return
+
 HotkeyPressed(){
     if(Minimized){
         IniRead, defaultXPosition, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultXPosition,Center
         IniRead, defaultYPosition, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultYPosition,Center
-        Gui, Show, x%defaultXPosition% y%defaultYPosition% w450 h190, TranslationGUI
+        Gui, Show, x%defaultXPosition% y%defaultYPosition% w360 h190, TranslationGUI
     }else{
         Gui, Cancel
     }
