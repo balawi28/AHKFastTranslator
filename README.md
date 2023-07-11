@@ -1,29 +1,47 @@
 
 # ![Google Translate Logo](https://github.com/balawi28/AHKFastTranslator/assets/41299807/64ce6ad9-e45b-4d80-bdfa-9032f10d2a6f) AHKFastTranslator
-AutoHotKey (AHK) script to visualize current audio levels through dynamic vertical bars in the tray icon.
 
-
-![Animation](https://user-images.githubusercontent.com/41299807/179812864-d4cb2667-3def-4435-8302-82d6bafc95b8.gif)
-
-![Animation2](https://user-images.githubusercontent.com/41299807/179813181-9edc23e3-dc02-4ae0-b78b-920e1bc1cec8.gif)
+AHKFastTranslator is an AutoHotkey script that provides a fast and convenient way to translate text using Google Translate API. It allows you to assign a hotkey that triggers the translation process, and the translated text can be displayed in a tooltip or a message box.
 
 ## Application Features
-- Helps to find out if any audio is currently playing in the background without the need to unmute the volume.
-- A lightweight tool to help mute users find out whether the PC is playing audio or not.
-- One-file-program, no need to install or set up a folder.
-- It can be run automatically at startup.
-- Custom color for the audio bars:
-
-![image](https://user-images.githubusercontent.com/41299807/179814079-ca57247a-5509-4bb5-9af5-5ffeaff920cb.png)
-
+- Translate text quickly using Google Translate.
+- Assign a custom hotkey to trigger the translation.
+- Choose the source and target languages from a dropdown menu.
+- Display the translated text in a tooltip or a message box.
+- Copy the translation to the clipboard (optional).
+- Run the script at startup (optional).
 
 ## How To Install
 1. Install AutoHotKey (https://www.autohotkey.com).
-2. Download `Gdip.ahk` from [here](https://github.com/tariqporter/Gdip/blob/master/Gdip.ahk).
-3. Download `VA.ahk` from [here](https://github.com/SaifAqqad/VA.ahk/blob/master/VA.ahk).
-4. Download `TrayAudioVisualizer.ahk` from this repo.
-5. Put all 3 `.ahk` scripts in the same folder and run `TrayAudioVisualizer.ahk`.
+1. Download the AHKFastTranslator.ahk file from this GitHub repository.
+3. Double-click the AHKFastTranslator.ahk file to run the script.
+
+## Usage
+1. After running the script, a tray icon will appear.
+2. Right-click the tray icon to access the menu options.
+3. Choose "GUI" to open the translation GUI.
+4. In the GUI, select the source and target languages from the dropdown menus.
+5. Assign a hotkey by clicking on the "GUI Popup Hotkey" field and pressing the desired key combination.
+6. Choose the preferred output method (tooltip or message box).
+7. Optionally, enable the "Copy Translation to Clipboard" checkbox to copy the translation automatically to the clipboard.
+8. Click the "Save" button to save the settings.
+9. Close the GUI.
+10. Press the assigned hotkey to trigger the translation process.
+11. The translated text will be displayed in a tooltip or a message box, depending on the selected output method.
+12. Optionally, the translation can be copied to the clipboard if the "Copy Translation to Clipboard" checkbox is enabled.
+
+## Requirements
+AutoHotkey (version 1.1.33.02 or later)
+
+## Troubleshooting
+If the script doesn't work as expected, make sure you have the correct version of AutoHotkey installed.
+If you encounter any issues or have any suggestions, please visit the GitHub repository and open an issue.
+
+## License
+This project is licensed under the MIT License. See the LICENSE file for more information.
+
+![image](https://user-images.githubusercontent.com/41299807/179814079-ca57247a-5509-4bb5-9af5-5ffeaff920cb.png)
 
 ## Notes
-- For suggestions and bug-reporting, please refer to the issues section of this page.
+- For suggestions and bug reporting, please refer to the issues section of this page.
 - This is not a spectrum analyzer, the bars represent the Current_Audio_Level $\pm$ random noise.
