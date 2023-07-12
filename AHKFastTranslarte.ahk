@@ -65,7 +65,7 @@ OnMessage(0x0232, "OnDragRelease")
 
 ; To enable drag on the main window
 enableGuiDrag()
-return
+Return
 
 CheckBox:
     Gui, Submit, NoHide
@@ -85,28 +85,28 @@ ButtonSave:
     IniWrite, %hotKeyCurrent%, %A_ScriptFullPath%:Stream:$DATA, Settings,hotKeyPrevious
     hotKeyPrevious := hotKeyCurrent
     MsgBox, 0x40000,, Hotkey Saved Successfully
-return
+Return
 
 About:
     MsgBox, 0x40000, , By: balawi28`n`nhttps://github.com/balawi28/AHKFastTranslator
-return
+Return
 
 BugReport:
     MsgBox, 0x40000,,https://github.com/balawi28/AHKFastTranslator/issues
-return
+Return
 
 HowToUse:
     MsgBox, 0x40000,, 1- Assign a hotkey then click "save" button.`n2- Whenever you need to translate something use that hotkey.`n3- Press Enter to receive the translation.
-return
+Return
 
 #IfWinActive, AHKFastTranslation ahk_class AutoHotkeyGUI
     Esc::
-        Gui, Cancel
-        Minimized := True
-    return
+        Goto, GuiClose
+    Return
     NumpadEnter::
     Enter::
         Gui, Submit
+        GuiControl, , TextToTranslate
         Minimized := True
         url := TranslateURL(dict[SourceLang], dict[TargetLang], TextToTranslate)
         response := PostRequest(url)
@@ -118,14 +118,15 @@ return
             Sleep, 2000 ; Display the tooltip for 2 seconds
             ToolTip ; Remove the tooltip
         } else
-        MsgBox, 0x40000,, % cleanResponse
-return
+            MsgBox, 0x40000,, % cleanResponse
+    Return
 #IfWinActive
 
 GuiClose:
+    GuiControl, , TextToTranslate
     Minimized := True
     Gui, Cancel
-return
+Return
 
 ExitApplication(){
     ExitApp
@@ -138,18 +139,17 @@ RadioChoice:
     IniWrite, %outputMethod%, %A_ScriptFullPath%:Stream:$DATA, Settings,outputMethod
 Return
 
-HotkeyPressed(){
+HotkeyPressed:
     if(Minimized){
         IniRead, defaultXPosition, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultXPosition,Center
         IniRead, defaultYPosition, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultYPosition,Center
         Gui, Show, x%defaultXPosition% y%defaultYPosition% w360 h230, AHKFastTranslation
         GuiControl, Focus, TextToTranslate
     }else{
-        Gui, Cancel
+        Goto, GuiClose
     }
     Minimized := ! Minimized
-    
-}
+Return
 
 StartupToggle()
 {
@@ -167,7 +167,7 @@ PostRequest(url){
     response := ComObjCreate("WinHttp.WinHttpRequest.5.1")
     response.Open("POST", url, false)
     response.Send()
-    return response.ResponseText
+    Return response.ResponseText
 }
 
 TranslateURL(sourceLang, targetLang, textToTranslate)
@@ -191,7 +191,7 @@ TranslateURL(sourceLang, targetLang, textToTranslate)
     params["it"] := "sel.8936"
     params["ssel"] := "0"
     params["tsel"] := "3"
-    return baseUrl . EncodeParams(params)
+    Return baseUrl . EncodeParams(params)
 }
 
 Join(dict, delim) {
@@ -202,7 +202,7 @@ Join(dict, delim) {
             result .= delim
         result .= key
     }
-    return result
+    Return result
 }
 
 FindLanguageIndex(dict, language) {
@@ -210,10 +210,10 @@ FindLanguageIndex(dict, language) {
     for key, value in dict
     {
         if (key == language)
-            return index
+            Return index
         index += 1
     }
-    return -1 ; Language not found, return -1
+    Return -1 ; Language not found, Return -1
 }
 
 OnSourceLangChange() {
@@ -245,7 +245,7 @@ EncodeParams(params)
         encodedValue := value
         encodedParams .= (encodedParams = "") ? encodedKey . "=" . encodedValue : "&" . encodedKey . "=" . encodedValue
     }
-    return encodedParams
+    Return encodedParams
 }
 
 ; UriEncode function is written by the-Automator
@@ -277,12 +277,12 @@ Base64PNG_to_HICON(Base64PNG, W:=0, H:=0){
 enableGuiDrag(GuiLabel=1) {
     WinGetPos,,,A_w,A_h,A
     Gui, %GuiLabel%:Add, Text, x0 y0 w%A_w% h%A_h% +BackgroundTrans gGUI_Drag
-    return
+    Return
 
     GUI_Drag:
         SendMessage 0xA1,2 ;-- Goyyah/SKAN trick
     ;http://autohotkey.com/board/topic/80594-how-to-enable-drag-for-a-gui-without-a-titlebar
-    return
+    Return
 }
 
 GetLanguagesDict(){
@@ -423,7 +423,7 @@ GetLanguagesDict(){
         dict["Yoruba"] := "yo"
         dict["Zulu"] := "zu"
     }
-    return dict
+    Return dict
 }
 
 SwapIcon(){
@@ -459,51 +459,51 @@ SwapIcon(){
         . "TYojvgKxFhUsZwXi50jm1hLSMAEtOuyo4Ah3NDPbCGnoRlL8DIhZqOAIKzRHdBPS0AlVeIqKacEMiP+S"
         . "4ghNIBZA4vMB8WYgvg/E50jA56H0KiB+QmpIIANfGpQXL0lxAKhWXAjEl4D4AAn4EDQrzoaWssgOqKZn"
         . "kW+JZnktPS0PRrO8lJ6Wx6BZnk9Py9nQKju6Wg4Da6CW52CTBADLm7B1N75ElAAAAABJRU5ErkJggg=="
-    return Base64PNG
+    Return Base64PNG
 }
 
 TrayIcon(){
     Base64PNG := ""
-    . "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAGSWlU"
-    . "WHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhp"
-    . "SHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0"
-    . "az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAg"
-    . "ICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJk"
-    . "Zi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRw"
-    . "Oi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94"
-    . "YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9S"
-    . "ZXNvdXJjZUV2ZW50IyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hv"
-    . "cC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtcDpDcmVh"
-    . "dG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAy"
-    . "My0wNy0xMlQxNjoyMToxMiswMzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMy0wNy0xMlQxNjoyMTox"
-    . "MiswMzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjMtMDctMTJUMTY6MjE6MTIrMDM6MDAiIHhtcE1NOklu"
-    . "c3RhbmNlSUQ9InhtcC5paWQ6NzgyODIyMDEtYzYwYi05MzQxLTkwNzktMTA0NjI2YjA5MDFmIiB4bXBN"
-    . "TTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6ZGM5MjljYTItYjM5MS00ZTQ1LTkyZWIt"
-    . "ODYyMWIzZmM3NGViIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ZWZlYTBmN2MtNjQ4"
-    . "MS1kYzRlLTg0MDgtYzlhNjBkNDAyYmJmIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBkYzpmb3JtYXQ9"
-    . "ImltYWdlL3BuZyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249"
-    . "ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ZWZlYTBmN2MtNjQ4MS1kYzRlLTg0MDgt"
-    . "YzlhNjBkNDAyYmJmIiBzdEV2dDp3aGVuPSIyMDIzLTA3LTEyVDE2OjIxOjEyKzAzOjAwIiBzdEV2dDpz"
-    . "b2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiLz4gPHJkZjpsaSBzdEV2"
-    . "dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjc4MjgyMjAxLWM2MGItOTM0"
-    . "MS05MDc5LTEwNDYyNmIwOTAxZiIgc3RFdnQ6d2hlbj0iMjAyMy0wNy0xMlQxNjoyMToxMiswMzowMCIg"
-    . "c3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpj"
-    . "aGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8cGhvdG9zaG9wOlRleHRMYXll"
-    . "cnM+IDxyZGY6QmFnPiA8cmRmOmxpIHBob3Rvc2hvcDpMYXllck5hbWU9Iti5IiBwaG90b3Nob3A6TGF5"
-    . "ZXJUZXh0PSLYuSIvPiA8L3JkZjpCYWc+IDwvcGhvdG9zaG9wOlRleHRMYXllcnM+IDwvcmRmOkRlc2Ny"
-    . "aXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+WwrQuAAAAjtJ"
-    . "REFUWMO9VztuwkAQNSeAipomkAIJxAmQ0lByBAoOQIdEhbgAhQ9ASRVRcACOABIFRSTo0xgSORRImfg5"
-    . "HjOYtRfshZGm8O545+183mgtIrI8efH03dODp8TabDZpOBz62ul0SO5l0EPg6yXwbVU8dVTGcMzSbrdN"
-    . "AWB1At8+GtIBQDQMAyDfd7fb/VksFqTS3W4XAlgulxRnV6/X0wL4tuQt00qm6MhCk8JrUsfjMW02myub"
-    . "UqmUJQ3nj8lk4h+M0BeLxSvjWq1G8/nct+n1eqbq4PyBXEJOpxPZtn1hmMvlaDQa+fuO41ChUDAPAIqi"
-    . "griuS+VyOVyvVqt0PB7D0BvshMsF5JMFKcHN8/l8GHqkx3ArJvd/q9Wifr//SD5Qb3Aq1ut1yAcG6TgZ"
-    . "ANLAAKTMZrObWw5gYS+JDClVFO+lY/S6TnBQEhDpWEtaaL0oWoka+3Fsif0oEekucMUfqsOR82i+4YSJ"
-    . "KipyFoAjmCuiZ8BOMTcs/yacY93YBRCA5n8kJyC8Kcb3/6FpmC36n+QQFVXj9ljHRbVtmFY5MhwdRAV1"
-    . "IUc7OuxhAHBLroOkLnoYAOaAOEGEIvVh1jkOVxEYQMVwhznncCDDfyNzmgMgSSiS5+cA4Eq/c2SbAxDT"
-    . "Zs8DIPN/B7GZAyBnBdrtxtF9+R7MonIW8EACKLSmKiKNRsNNfJpl7QSdTKfTDwB4jXucZiEjHR1DBoPB"
-    . "mxU8kStBJL5MUzJSgK5gQPv9/ne1Wn1ut1sbvv8Akdi/PNdSy+EAAAAASUVORK5CYII="
+        . "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAGSWlU"
+        . "WHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhp"
+        . "SHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0"
+        . "az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAg"
+        . "ICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJk"
+        . "Zi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRw"
+        . "Oi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94"
+        . "YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9S"
+        . "ZXNvdXJjZUV2ZW50IyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hv"
+        . "cC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtcDpDcmVh"
+        . "dG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAy"
+        . "My0wNy0xMlQxNjoyMToxMiswMzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMy0wNy0xMlQxNjoyMTox"
+        . "MiswMzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjMtMDctMTJUMTY6MjE6MTIrMDM6MDAiIHhtcE1NOklu"
+        . "c3RhbmNlSUQ9InhtcC5paWQ6NzgyODIyMDEtYzYwYi05MzQxLTkwNzktMTA0NjI2YjA5MDFmIiB4bXBN"
+        . "TTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6ZGM5MjljYTItYjM5MS00ZTQ1LTkyZWIt"
+        . "ODYyMWIzZmM3NGViIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ZWZlYTBmN2MtNjQ4"
+        . "MS1kYzRlLTg0MDgtYzlhNjBkNDAyYmJmIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBkYzpmb3JtYXQ9"
+        . "ImltYWdlL3BuZyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249"
+        . "ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ZWZlYTBmN2MtNjQ4MS1kYzRlLTg0MDgt"
+        . "YzlhNjBkNDAyYmJmIiBzdEV2dDp3aGVuPSIyMDIzLTA3LTEyVDE2OjIxOjEyKzAzOjAwIiBzdEV2dDpz"
+        . "b2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiLz4gPHJkZjpsaSBzdEV2"
+        . "dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjc4MjgyMjAxLWM2MGItOTM0"
+        . "MS05MDc5LTEwNDYyNmIwOTAxZiIgc3RFdnQ6d2hlbj0iMjAyMy0wNy0xMlQxNjoyMToxMiswMzowMCIg"
+        . "c3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpj"
+        . "aGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8cGhvdG9zaG9wOlRleHRMYXll"
+        . "cnM+IDxyZGY6QmFnPiA8cmRmOmxpIHBob3Rvc2hvcDpMYXllck5hbWU9Iti5IiBwaG90b3Nob3A6TGF5"
+        . "ZXJUZXh0PSLYuSIvPiA8L3JkZjpCYWc+IDwvcGhvdG9zaG9wOlRleHRMYXllcnM+IDwvcmRmOkRlc2Ny"
+        . "aXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+WwrQuAAAAjtJ"
+        . "REFUWMO9VztuwkAQNSeAipomkAIJxAmQ0lByBAoOQIdEhbgAhQ9ASRVRcACOABIFRSTo0xgSORRImfg5"
+        . "HjOYtRfshZGm8O545+183mgtIrI8efH03dODp8TabDZpOBz62ul0SO5l0EPg6yXwbVU8dVTGcMzSbrdN"
+        . "AWB1At8+GtIBQDQMAyDfd7fb/VksFqTS3W4XAlgulxRnV6/X0wL4tuQt00qm6MhCk8JrUsfjMW02myub"
+        . "UqmUJQ3nj8lk4h+M0BeLxSvjWq1G8/nct+n1eqbq4PyBXEJOpxPZtn1hmMvlaDQa+fuO41ChUDAPAIqi"
+        . "griuS+VyOVyvVqt0PB7D0BvshMsF5JMFKcHN8/l8GHqkx3ArJvd/q9Wifr//SD5Qb3Aq1ut1yAcG6TgZ"
+        . "ANLAAKTMZrObWw5gYS+JDClVFO+lY/S6TnBQEhDpWEtaaL0oWoka+3Fsif0oEekucMUfqsOR82i+4YSJ"
+        . "KipyFoAjmCuiZ8BOMTcs/yacY93YBRCA5n8kJyC8Kcb3/6FpmC36n+QQFVXj9ljHRbVtmFY5MhwdRAV1"
+        . "IUc7OuxhAHBLroOkLnoYAOaAOEGEIvVh1jkOVxEYQMVwhznncCDDfyNzmgMgSSiS5+cA4Eq/c2SbAxDT"
+        . "Zs8DIPN/B7GZAyBnBdrtxtF9+R7MonIW8EACKLSmKiKNRsNNfJpl7QSdTKfTDwB4jXucZiEjHR1DBoPB"
+        . "mxU8kStBJL5MUzJSgK5gQPv9/ne1Wn1ut1sbvv8Akdi/PNdSy+EAAAAASUVORK5CYII="
 
-    return Base64PNG
+    Return Base64PNG
 }
 
 GoogleTranslateLogo(){
@@ -574,5 +574,5 @@ GoogleTranslateLogo(){
         . "hMksx2wKqxWIIl8Q1q5O7lx/YWLT0GjktNZT3qt+aDjkWZKvbeRKk7nKrnwxevv/sZ0p2Ci1PVEAAAAA"
         . "SUVORK5CYII="
 
-    return Base64PNG
+    Return Base64PNG
 }
