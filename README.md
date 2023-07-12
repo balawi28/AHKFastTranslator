@@ -38,8 +38,5 @@ AutoHotkey (version 1.1.33.02 or later)
 ## Troubleshooting
 If the script doesn't work as expected, make sure you have the correct version of AutoHotkey installed.
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more information.
-
 ## Notes
 - For suggestions and bug reporting, please refer to the issues section of this page.
