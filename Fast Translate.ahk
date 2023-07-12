@@ -46,7 +46,6 @@ Gui, Add, Text, x10 y100 w200,GUI Popup Hotkey:
 Gui, Add, Hotkey, x130 y97 w150 h25 vhotKeyCurrent
 GuiControl,, hotKeyCurrent, %hotKeyPrevious%
 Gui Add, Button, x290 y96 w60` h27, Save
-
 Gui, Add, Text, x10 y130 w200,Prefered Output:
 Gui, Add, Radio, x130 y130 vChoiceToolTip gRadioChoice, Tooltip
 Gui, Add, Radio, x200 y130 vChoiceMsgBox gRadioChoice, Message Box
@@ -76,12 +75,13 @@ Return
 ; Save hotkey routine
 ButtonSave:
     Gui, Submit, NoHide
-    if (StrLen(hotKeyPrevious) != 0 and hotKeyPrevious != hotKeyCurrent)
+    if (StrLen(hotKeyPrevious) != 0 and hotKeyPrevious != hotKeyCurrent){
         Hotkey, %hotKeyPrevious%, Off
-
-    if (StrLen(hotKeyCurrent) != 0)
+    }
+    if (StrLen(hotKeyCurrent) != 0){
+        Hotkey, %hotKeyCurrent%, On, UseErrorLevel
         Hotkey, %hotKeyCurrent%, HotkeyPressed
-
+    }
     IniWrite, %hotKeyCurrent%, %A_ScriptFullPath%:Stream:$DATA, Settings,hotKeyPrevious
     hotKeyPrevious := hotKeyCurrent
     MsgBox, 0x40000,, Hotkey Saved Successfully
