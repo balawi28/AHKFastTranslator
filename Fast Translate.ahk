@@ -1,6 +1,8 @@
-﻿#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
 #SingleInstance force ; Ensures only one instance of the script is running.
-UpdateTrayIcon()
+
+; Update tray icon
+Menu, Tray, Icon, % "HICON:" . Base64PNG_to_HICON(TrayIcon())
 
 global Minimized := True
 dict := GetLanguagesDict()
@@ -11,6 +13,7 @@ IniRead, defaultTargetLanguage, %A_ScriptFullPath%:Stream:$DATA, Settings, defau
 IniRead, hotKeyPrevious, %A_ScriptFullPath%:Stream:$DATA, Settings, hotKeyPrevious, ^+t
 IniRead, isRanAtStartup, %A_ScriptFullPath%:Stream:$DATA, Settings, Startup, error
 IniRead, outputMethod, %A_ScriptFullPath%:Stream:$DATA, Settings, outputMethod, tooltip
+IniRead, EnableClipboard, %A_ScriptFullPath%:Stream:$DATA, Settings, EnableClipboard, 0
 
 ; Initalize hotkey
 if (StrLen(hotKeyPrevious) != 0)
@@ -27,17 +30,17 @@ Menu, Tray, Add, Run at Startup, StartupToggle
 Menu, Tray, Add, Exit, ExitApplication
 Menu, Tray, Icon, Exit, Shell32.dll, 132
 Menu, Tray, Default, GUI
-Gui, +AlwaysOnTop +ToolWindow +LastFound +Border -Caption +OwnDialogs
+Gui, +AlwaysOnTop +ToolWindow +LastFound +Border +OwnDialogs
 Gui, Color, White
 Gui, Font, s11
 
 ; GUI configuration
 Gui, Add, DropDownList, x10 y10 w150 choose%sourceIndex% vSourceLang gOnSourceLangChange, %menuOptions%
-Gui, Add, Picture, x170 y14 w23 h16 gSwapLanguages, % "HICON:" . Base64PNG_to_HICON(SwapIcon())
+Gui, Add, Picture, x168 y14 w23 h16 gSwapLanguages, % "HICON:" . Base64PNG_to_HICON(SwapIcon())
 Gui, Add, DropDownList, x200 y10 w150 choose%targetInde`x% vTargetLang gOnTargetLangChange, %menuOptions%
 
-Gui, Add, Picture, x10 y50 w32 h32, % "HICON:" . Base64PNG_to_HICON(GoogleTranslateLogoPNG64())
-Gui, Add, Edit, x55 y55 w295 vEditField
+Gui, Add, Picture, x10 y50 w32 h32, % "HICON:" . Base64PNG_to_HICON(GoogleTranslateLogo())
+Gui, Add, Edit, x55 y55 w295 vTextToTranslate
 
 Gui, Add, Text, x10 y100 w200,GUI Popup Hotkey:
 Gui, Add, Hotkey, x130 y97 w150 h25 vhotKeyCurrent
@@ -49,11 +52,14 @@ Gui, Add, Radio, x130 y130 vChoiceToolTip gRadioChoice, Tooltip
 Gui, Add, Radio, x200 y130 vChoiceMsgBox gRadioChoice, Message Box
 GuiControl,, % outputMethod = "tooltip" ? "ChoiceToolTip" : "ChoiceMsgBox", 1
 
-Gui, Add, Text, x275 y160, [draggable]
+Gui, Add, CheckBox, x10 y160 vEnableClipboard gCheckBox, Copy Translation to Clipboard
+GuiControl,,EnableClipboard,%EnableClipboard%
+
+Gui, Add, Text, x275 y200, [draggable]
 Gui, Font, Underline cBlue
-Gui, Add, Text, x10 y160 gAbout, About
-Gui, Add, Text, x72 y160 gBugReport, Bug Report
-Gui, Add, Text, x167 y160 gHowToUse, How to Use?
+Gui, Add, Text, x10 y200 gAbout, About
+Gui, Add, Text, x72 y200 gBugReport, Bug Report
+Gui, Add, Text, x167 y200 gHowToUse, How to Use?
 
 ; Define the callback function to handle the WM_MOVE message
 OnMessage(0x0232, "OnDragRelease")
@@ -61,6 +67,11 @@ OnMessage(0x0232, "OnDragRelease")
 ; To enable drag on the main window
 enableGuiDrag()
 return
+
+CheckBox:
+    Gui, Submit, NoHide
+    IniWrite, %EnableClipboard%, %A_ScriptFullPath%:Stream:$DATA, Settings,EnableClipboard
+Return
 
 ; Save hotkey routine
 ButtonSave:
@@ -71,24 +82,24 @@ ButtonSave:
     if (StrLen(hotKeyCurrent) != 0)
         Hotkey, %hotKeyCurrent%, HotkeyPressed
 
-    IniWrite, %hotKeyCurrent%, %A_ScriptFullPath%:Stream:$DATA, Settings, hotKeyCurrent
+    IniWrite, %hotKeyCurrent%, %A_ScriptFullPath%:Stream:$DATA, Settings,hotKeyPrevious
     hotKeyPrevious := hotKeyCurrent
-
+    MsgBox, 0x40000,, Hotkey Saved Successfully
 return
 
 About:
-MsgBox, 0x40000, , By: balawi28`n`nhttps://github.com/balawi28/AHKFastTranslator
+    MsgBox, 0x40000, , By: balawi28`n`nhttps://github.com/balawi28/AHKFastTranslator
 return
 
 BugReport:
-    Msgbox https://github.com/balawi28/AHKFastTranslator/issues
+    MsgBox, 0x40000,,https://github.com/balawi28/AHKFastTranslator/issues
 return
 
 HowToUse:
-    Msgbox 1- Assign a hotkey then click "save" button.`n2- Whenever you need to translate something use that hotkey.`n3- Press Enter to receive the translation.
+    MsgBox, 0x40000,, 1- Assign a hotkey then click "save" button.`n2- Whenever you need to translate something use that hotkey.`n3- Press Enter to receive the translation.
 return
 
-#IfWinActive, TranslationGUI ahk_class AutoHotkeyGUI
+#IfWinActive, AHKFastTranslation ahk_class AutoHotkeyGUI
     Esc::
         Gui, Cancel
         Minimized := True
@@ -97,16 +108,17 @@ return
     Enter::
         Gui, Submit
         Minimized := True
-        url := TranslateURL(dict[SourceLang], dict[TargetLang], EditField)
+        url := TranslateURL(dict[SourceLang], dict[TargetLang], TextToTranslate)
         response := PostRequest(url)
         cleanResponse := SubStr(response, 3, StrLen(response) - 4)
+        if (EnableClipboard)
+            Clipboard := cleanResponse
         if (outputMethod = "tooltip"){
             ToolTip % cleanResponse
             Sleep, 2000 ; Display the tooltip for 2 seconds
             ToolTip ; Remove the tooltip
-        } else{
-            MsgBox % cleanResponse
-        }
+        } else
+        MsgBox, 0x40000,, % cleanResponse
 return
 #IfWinActive
 
@@ -130,11 +142,13 @@ HotkeyPressed(){
     if(Minimized){
         IniRead, defaultXPosition, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultXPosition,Center
         IniRead, defaultYPosition, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultYPosition,Center
-        Gui, Show, x%defaultXPosition% y%defaultYPosition% w360 h190, TranslationGUI
+        Gui, Show, x%defaultXPosition% y%defaultYPosition% w360 h230, AHKFastTranslation
+        GuiControl, Focus, TextToTranslate
     }else{
         Gui, Cancel
     }
     Minimized := ! Minimized
+    
 }
 
 StartupToggle()
@@ -253,10 +267,6 @@ OnDragRelease(wParam, lParam, msg, hwnd)
     WinGetPos, WinX, WinY, , , ahk_id %hwnd%
     IniWrite, %WinX%, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultXPosition
     IniWrite, %WinY%, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultYPosition
-}
-
-UpdateTrayIcon(){
-    Menu, Tray, Icon, % "HICON:" . Base64PNG_to_HICON(GoogleTranslateLogoPNG64())
 }
 
 Base64PNG_to_HICON(Base64PNG, W:=0, H:=0){
@@ -452,8 +462,51 @@ SwapIcon(){
     return Base64PNG
 }
 
-GoogleTranslateLogoPNG64(){
+TrayIcon(){
+    Base64PNG := ""
+    . "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAGSWlU"
+    . "WHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhp"
+    . "SHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0"
+    . "az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAg"
+    . "ICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJk"
+    . "Zi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRw"
+    . "Oi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94"
+    . "YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9S"
+    . "ZXNvdXJjZUV2ZW50IyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hv"
+    . "cC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtcDpDcmVh"
+    . "dG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAy"
+    . "My0wNy0xMlQxNjoyMToxMiswMzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMy0wNy0xMlQxNjoyMTox"
+    . "MiswMzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjMtMDctMTJUMTY6MjE6MTIrMDM6MDAiIHhtcE1NOklu"
+    . "c3RhbmNlSUQ9InhtcC5paWQ6NzgyODIyMDEtYzYwYi05MzQxLTkwNzktMTA0NjI2YjA5MDFmIiB4bXBN"
+    . "TTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6ZGM5MjljYTItYjM5MS00ZTQ1LTkyZWIt"
+    . "ODYyMWIzZmM3NGViIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ZWZlYTBmN2MtNjQ4"
+    . "MS1kYzRlLTg0MDgtYzlhNjBkNDAyYmJmIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBkYzpmb3JtYXQ9"
+    . "ImltYWdlL3BuZyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249"
+    . "ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ZWZlYTBmN2MtNjQ4MS1kYzRlLTg0MDgt"
+    . "YzlhNjBkNDAyYmJmIiBzdEV2dDp3aGVuPSIyMDIzLTA3LTEyVDE2OjIxOjEyKzAzOjAwIiBzdEV2dDpz"
+    . "b2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiLz4gPHJkZjpsaSBzdEV2"
+    . "dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjc4MjgyMjAxLWM2MGItOTM0"
+    . "MS05MDc5LTEwNDYyNmIwOTAxZiIgc3RFdnQ6d2hlbj0iMjAyMy0wNy0xMlQxNjoyMToxMiswMzowMCIg"
+    . "c3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpj"
+    . "aGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8cGhvdG9zaG9wOlRleHRMYXll"
+    . "cnM+IDxyZGY6QmFnPiA8cmRmOmxpIHBob3Rvc2hvcDpMYXllck5hbWU9Iti5IiBwaG90b3Nob3A6TGF5"
+    . "ZXJUZXh0PSLYuSIvPiA8L3JkZjpCYWc+IDwvcGhvdG9zaG9wOlRleHRMYXllcnM+IDwvcmRmOkRlc2Ny"
+    . "aXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+WwrQuAAAAjtJ"
+    . "REFUWMO9VztuwkAQNSeAipomkAIJxAmQ0lByBAoOQIdEhbgAhQ9ASRVRcACOABIFRSTo0xgSORRImfg5"
+    . "HjOYtRfshZGm8O545+183mgtIrI8efH03dODp8TabDZpOBz62ul0SO5l0EPg6yXwbVU8dVTGcMzSbrdN"
+    . "AWB1At8+GtIBQDQMAyDfd7fb/VksFqTS3W4XAlgulxRnV6/X0wL4tuQt00qm6MhCk8JrUsfjMW02myub"
+    . "UqmUJQ3nj8lk4h+M0BeLxSvjWq1G8/nct+n1eqbq4PyBXEJOpxPZtn1hmMvlaDQa+fuO41ChUDAPAIqi"
+    . "griuS+VyOVyvVqt0PB7D0BvshMsF5JMFKcHN8/l8GHqkx3ArJvd/q9Wifr//SD5Qb3Aq1ut1yAcG6TgZ"
+    . "ANLAAKTMZrObWw5gYS+JDClVFO+lY/S6TnBQEhDpWEtaaL0oWoka+3Fsif0oEekucMUfqsOR82i+4YSJ"
+    . "KipyFoAjmCuiZ8BOMTcs/yacY93YBRCA5n8kJyC8Kcb3/6FpmC36n+QQFVXj9ljHRbVtmFY5MhwdRAV1"
+    . "IUc7OuxhAHBLroOkLnoYAOaAOEGEIvVh1jkOVxEYQMVwhznncCDDfyNzmgMgSSiS5+cA4Eq/c2SbAxDT"
+    . "Zs8DIPN/B7GZAyBnBdrtxtF9+R7MonIW8EACKLSmKiKNRsNNfJpl7QSdTKfTDwB4jXucZiEjHR1DBoPB"
+    . "mxU8kStBJL5MUzJSgK5gQPv9/ne1Wn1ut1sbvv8Akdi/PNdSy+EAAAAASUVORK5CYII="
 
+    return Base64PNG
+}
+
+GoogleTranslateLogo(){
     Base64PNG := ""
         . "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAGlmlU"
         . "WHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhp"
