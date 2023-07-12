@@ -7,8 +7,8 @@ AHKFastTranslator is an AutoHotkey script that provides a fast and convenient wa
 - No need to use a web browser to translate anymore!
 - Translate text quickly without leaving your current application.
 - Assign a custom hotkey to trigger the translation.
-- Choose the source and target languages from a dropdown menu.
 - Display the translated text in a tooltip or a message box.
+- The application remembers its position on the screen as well as your settings.
 - Copy the translation to the clipboard (optional).
 - Run the script at startup (optional).
 
