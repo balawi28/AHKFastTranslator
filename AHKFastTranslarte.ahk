@@ -11,7 +11,7 @@ menuOptions := Join(dict, "|")
 IniRead, defaultSourceLanguage, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultSourceLanguage,English
 IniRead, defaultTargetLanguage, %A_ScriptFullPath%:Stream:$DATA, Settings, defaultTargetLanguage,Arabic
 IniRead, hotKeyPrevious, %A_ScriptFullPath%:Stream:$DATA, Settings, hotKeyPrevious, ^+t
-IniRead, isRanAtStartup, %A_ScriptFullPath%:Stream:$DATA, Settings, Startup, error
+IniRead, isRanAtStartup, %A_ScriptFullPath%:Stream:$DATA, Settings, isRanAtStartup, 0
 IniRead, outputMethod, %A_ScriptFullPath%:Stream:$DATA, Settings, outputMethod, tooltip
 IniRead, EnableClipboard, %A_ScriptFullPath%:Stream:$DATA, Settings, EnableClipboard, 0
 
@@ -30,6 +30,9 @@ Menu, Tray, Add, Run at Startup, StartupToggle
 Menu, Tray, Add, Exit, ExitApplication
 Menu, Tray, Icon, Exit, Shell32.dll, 132
 Menu, Tray, Default, GUI
+if (isRanAtStartup)
+    Menu, Tray, Check, Run at Startup
+
 Gui, +AlwaysOnTop +ToolWindow +LastFound +Border +OwnDialogs
 Gui, Color, White
 Gui, Font, s11
@@ -151,8 +154,7 @@ HotkeyPressed:
     Minimized := ! Minimized
 Return
 
-StartupToggle()
-{
+StartupToggle:
     isRanAtStartup := !isRanAtStartup
     Menu, Tray, ToggleCheck, Run at Startup
     if(isRanAtStartup)
@@ -160,8 +162,8 @@ StartupToggle()
     else
         FileDelete, %A_AppData%\Microsoft\Windows\Start Menu\Programs\Startup\TrayAudioAnalyzer.lnk
 
-    IniWrite, %isRanAtStartup%, %A_ScriptFullPath%:Stream:$DATA, Settings, Startup
-}
+    IniWrite, %isRanAtStartup%, %A_ScriptFullPath%:Stream:$DATA, Settings, isRanAtStartup
+Return
 
 PostRequest(url){
     response := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -502,7 +504,6 @@ TrayIcon(){
         . "IUc7OuxhAHBLroOkLnoYAOaAOEGEIvVh1jkOVxEYQMVwhznncCDDfyNzmgMgSSiS5+cA4Eq/c2SbAxDT"
         . "Zs8DIPN/B7GZAyBnBdrtxtF9+R7MonIW8EACKLSmKiKNRsNNfJpl7QSdTKfTDwB4jXucZiEjHR1DBoPB"
         . "mxU8kStBJL5MUzJSgK5gQPv9/ne1Wn1ut1sbvv8Akdi/PNdSy+EAAAAASUVORK5CYII="
-
     Return Base64PNG
 }
 
@@ -573,6 +574,5 @@ GoogleTranslateLogo(){
         . "aLwzWT9a0TtxkGKkKZpFaARr3bGFndF73/7qgr7zz4kxMBTiB7oRjHlTYIyiWKz+8+iHIw9+YgCiDXFb"
         . "hMksx2wKqxWIIl8Q1q5O7lx/YWLT0GjktNZT3qt+aDjkWZKvbeRKk7nKrnwxevv/sZ0p2Ci1PVEAAAAA"
         . "SUVORK5CYII="
-
     Return Base64PNG
 }
