@@ -12,6 +12,8 @@ AHKFastTranslator is an AutoHotkey script that provides a fast and convenient wa
 - Copy the translation to the clipboard (optional).
 - Run the script at startup (optional).
 
+![Animation](https://github.com/balawi28/AHKFastTranslator/assets/41299807/4bc96d21-82ec-4f77-a27a-fafa9987671e)
+
 ## How To Install
 1. Install AutoHotKey (https://www.autohotkey.com).
 1. Download the `AHKFastTranslator.ahk` file from this GitHub repository.
