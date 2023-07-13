@@ -45,13 +45,13 @@ Gui, Add, DropDownList, x200 y10 w150 choose%targetInde`x% vTargetLang gOnTarget
 Gui, Add, Picture, x10 y50 w32 h32, % "HICON:" . Base64PNG_to_HICON(GoogleTranslateLogo())
 Gui, Add, Edit, x55 y55 w295 vTextToTranslate
 
-Gui, Add, Text, x10 y100 w200,GUI Popup Hotkey:
-Gui, Add, Hotkey, x130 y97 w150 h25 vhotKeyCurrent
+Gui, Add, Text, x10 y100 w200, GUI Popup Hotkey:
+Gui, Add, Hotkey, x140 y97 w140 h25 vhotKeyCurrent
 GuiControl,, hotKeyCurrent, %hotKeyPrevious%
-Gui Add, Button, x290 y96 w60` h27, Save
+Gui Add, Button, x295 y96 w55 h27, Save
 Gui, Add, Text, x10 y130 w200,Prefered Output:
-Gui, Add, Radio, x130 y130 vChoiceToolTip gRadioChoice, Tooltip
-Gui, Add, Radio, x200 y130 vChoiceMsgBox gRadioChoice, Message Box
+Gui, Add, Radio, x140 y130 vChoiceToolTip gRadioChoice, Tooltip
+Gui, Add, Radio, x210 y130 vChoiceMsgBox gRadioChoice, Message Box
 GuiControl,, % outputMethod = "tooltip" ? "ChoiceToolTip" : "ChoiceMsgBox", 1
 
 Gui, Add, CheckBox, x10 y160 vEnableClipboard gCheckBox, Copy Translation to Clipboard
