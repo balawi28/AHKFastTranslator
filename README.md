@@ -3,6 +3,8 @@
 
 AHKFastTranslator is an AutoHotkey script that provides a fast and convenient way to translate text using Google Translate API. It allows you to assign a hotkey that triggers the translation process, and the translated text can be displayed in a tooltip or a message box.
 
+![ApplicationPreview](https://github.com/balawi28/AHKFastTranslator/assets/41299807/903787ad-f47b-4bac-a7d4-e6804e3f4bb6)
+
 ## Application Features
 - No need to use a web browser to translate anymore!
 - Translate text quickly without leaving your current application.
@@ -11,9 +13,6 @@ AHKFastTranslator is an AutoHotkey script that provides a fast and convenient wa
 - The application remembers its position on the screen as well as your settings.
 - Copy the translation to the clipboard (optional).
 - Run the script at startup (optional).
-
-![ApplicationPreview](https://github.com/balawi28/AHKFastTranslator/assets/41299807/903787ad-f47b-4bac-a7d4-e6804e3f4bb6)
-
 
 ## How To Install
 1. Install AutoHotKey (https://www.autohotkey.com).
