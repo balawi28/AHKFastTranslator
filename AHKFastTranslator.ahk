@@ -114,6 +114,8 @@ Return
         url := TranslateURL(dict[SourceLang], dict[TargetLang], TextToTranslate)
         response := PostRequest(url)
         cleanResponse := SubStr(response, 3, StrLen(response) - 4)
+        if (SourceLang = "_Auto Detect_")
+            cleanResponse := SubStr(cleanResponse, 2, StrLen(cleanResponse) - 7)
         if (EnableClipboard)
             Clipboard := cleanResponse
         if (outputMethod = "tooltip"){
@@ -291,6 +293,7 @@ GetLanguagesDict(){
     global dict
     if !dict {
         dict := {}
+        dict["_Auto Detect_"] := "auto"
         dict["Afrikaans"] := "af"
         dict["Albanian"] := "sq"
         dict["Amharic"] := "am"
